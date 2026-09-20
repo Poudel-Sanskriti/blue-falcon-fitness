@@ -1,178 +1,69 @@
-# Blue Falcon Fitness
+# Blue Falcons Fitness App
 
-## Overview
+A personalized fitness guide web app with user accounts, onboarding quiz, fitness tracking, and optional LLM-generated reports.
 
-Blue Falcon Fitness is a full-stack fitness application developed as a Texas State Software Engineering course project.
+## Project Structure
 
-Our team built it to address a limitation we saw in many fitness applications: users often receive generic plans that do not account for their actual goals, experience, equipment, injuries, or dietary needs. Blue Falcon Fitness collects this information during onboarding and uses it to create a more personalized experience.
-
-The application includes account management, a fitness quiz, health calculations, workout generation, workout tracking, nutrition tools, reports, real-time chat, and optional local AI features.
-
-This is an educational software project, not a medical device. Its recommendations are not a substitute for professional medical advice.
-
-## My role and contributions
-
-I worked as a full-stack developer across the backend and frontend. My main responsibility was building the onboarding and workout-planning flow that connects a user's information to a personalized plan.
-
-### Onboarding and fitness quiz
-
-I implemented the onboarding feature across the full application stack:
-
-- database models for fitness goals;
-- validation schemas;
-- CRUD operations;
-- FastAPI endpoints;
-- the multi-step React quiz;
-- height and weight unit conversions;
-- input validation and review screens;
-- equipment, allergy, limitation, and preference inputs.
-
-I built this feature because the rest of the application needs reliable user information before it can generate meaningful workouts, nutrition plans, or reports.
-
-### Health calculations
-
-I implemented BMI, BMR, and TDEE calculations and connected the results to the user's saved fitness profile.
-
-These calculations provide a consistent baseline for personalization and allow later features to use the same validated data instead of repeating health-related logic in multiple places.
-
-### Workout-plan generation
-
-I implemented the workout-plan models, schemas, CRUD operations, API endpoints, generation logic, and frontend presentation.
-
-The generator considers the user's goal, activity level, available equipment, experience, and schedule. It supports optional local AI generation while retaining a rule-based fallback so the feature can still work when the AI service is unavailable.
-
-### Exercise database integration
-
-I integrated and normalized data from free-exercise-db. The project uses a catalog of 873 exercises that can be filtered by difficulty, equipment, target muscles, and injury-related restrictions.
-
-I added this because a fixed list of hard-coded exercises would limit personalization and make future changes difficult.
-
-### Workout tracking and user experience
-
-I implemented or contributed to:
-
-- set tracking;
-- exercise swapping;
-- weekly completion state;
-- stale-plan detection after quiz updates;
-- progress indicators;
-- workout history;
-- calendar views;
-- rest timers;
-- exercise animations.
-
-These features turn a generated plan into something users can follow, update, and review over time.
-
-The Git history preserves the complete contribution record for every team member.
-
-## Team
-
-| Contributor | Role | Primary areas |
-|---|---|---|
-| Shawn Mele | Full Stack | Architecture documentation, sprint planning, and muscle-map integration |
-| Yuxi Luo | Backend and AI | WebSocket and Redis chat, AI features, and the original hosting integration |
-| Sanskriti Poudel | Full Stack | Onboarding, health calculations, workout planning, tracking, history, timers, and animations |
-| Abraham Calzado Estrada | Full Stack | Equipment selection, workout details, profiles, routing, and supplement features |
-| Sergio Mendoza | Frontend | React foundation, landing page, design system, dashboard, workout, and nutrition interfaces |
-
-## Core features
-
-- User registration, login, profiles, and JWT authentication.
-- Redis-backed token invalidation for logout.
-- Personalized onboarding and health calculations.
-- Workout generation from a normalized exercise catalog.
-- Equipment and injury-aware exercise filtering.
-- Rule-based workout generation when local AI is unavailable.
-- Workout completion, set tracking, swaps, history, and calendar views.
-- Rest timers and exercise animations.
-- Nutrition plans and fitness reports.
-- Redis-backed background processing for longer AI tasks.
-- Real-time chat using WebSockets and Redis Pub/Sub.
-- Muscle heat maps, supplement guidance, subscriptions, and administration tools.
-
-## Architecture
-
-The frontend is a React and Vite single-page application. It communicates with a FastAPI backend through HTTP and WebSocket endpoints.
-
-The backend is the source of truth. Protected endpoints identify the current user from a verified JWT rather than trusting a user ID supplied by the frontend.
-
-Application data is stored with SQLModel and SQLite. Redis supports token invalidation, real-time chat, and background task queues. A worker processes longer AI jobs and stores their results for the frontend to retrieve.
-
-```text
-User
-  |
-React and Vite frontend
-  |
-FastAPI backend
-  |-- SQLModel and SQLite
-  |-- Redis
-       |-- authentication state
-       |-- chat Pub/Sub
-       `-- background task queues
-              |
-          worker process
-              |
-          Ollama model
+```
+cs3398-groupproject/
+├── docs/
+│   ├── project-management-plan.md
+│   └── ERdiagram_sprint1.png
+├── src/
+│   ├── api/           # API modules (login, fitness, quiz, profile, report, workout, nutrition, forum, chat, subscription, stats)
+│   ├── core/          # Config, auth, database, security, health calculations, llm
+│   ├── crud/          # Database operations by feature module
+│   ├── model.py       # SQLModel entities
+│   ├── schemas.py     # Pydantic request/response schemas
+│   └── tasks.py       # Background queue worker(s)
+├── src/frontend/      # React + Vite SPA
+├── main.py            # FastAPI app entry point
+├── requirements.txt
+└── .env               # Create this (see Environment Variables)
 ```
 
-## Technology stack
+## Technology Stack
 
-| Layer | Technologies |
-|---|---|
-| Frontend | React 19, Vite 7, React Router, Axios, Recharts, and Lottie |
-| Backend | Python 3.11+, FastAPI, Pydantic, and SQLModel |
-| Data | SQLite, aiosqlite, and Redis |
-| Authentication | JWT, passlib, bcrypt, and Redis token state |
-| Optional AI | Ollama with a configurable local model |
-| Development tools | npm, Uvicorn, FastAPI OpenAPI, and SQLAdmin |
+- **Backend:** Python, FastAPI (async)
+- **Database:** SQLite (async via aiosqlite) + SQLModel
+- **Auth:** JWT (python-jose), password hashing (passlib/bcrypt), Redis (sessions/queue)
+- **LLM (optional):** Ollama for local AI fitness reports
+- **Frontend:** React 19, Vite 7, React Router
+- **API docs:** FastAPI OpenAPI - `/docs`
+- **Admin:** SQLAdmin - `/admin`
 
-## Getting started
+---
 
-### Requirements
+## Setup
 
-- Python 3.11 or newer
-- Node.js 18 or newer
-- Redis, installed locally or running in Docker
-- Ollama only if local AI generation is needed
+### Backend
 
-### Backend setup
+1. Create and activate a virtual environment:
 
-```bash
-git clone <repository-url>
-cd blue-falcon-fitness
+   ```bash
+   python -m venv venv
+   # Activate:
+   # Windows: venv\Scripts\activate
+   # Mac/Linux: source venv/bin/activate
+   ```
 
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+2. Install dependencies:
 
-cp .env.example .env
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-On Windows, activate the environment with:
+3. Copy `.env.example` to `.env` and replace the placeholder values.
 
-```powershell
-.venv\Scripts\activate
-```
+4. **Redis** must be running. Quick start with Docker:
 
-Replace the placeholder values in `.env`. `SECRET_KEY`, `ADMIN_PASSWORD`, and `PREMIUM_COUPON` do not have public fallback values.
+   ```bash
+   docker run -d -p 6379:6379 redis:alpine
+   ```
 
-Start Redis with Docker:
+5. **Optional Ollama:** Install from [ollama.com](https://ollama.com), then run a local model such as `ollama run mistral-nemo`. If disabled in `.env`, the app uses a mock report generator.
 
-```bash
-docker run --rm -p 6379:6379 redis:alpine
-```
-
-Start the backend:
-
-```bash
-uvicorn main:app --reload
-```
-
-The API runs at `http://localhost:8000`. Interactive API documentation is available at `http://localhost:8000/docs`.
-
-### Frontend setup
-
-In another terminal:
+### Frontend
 
 ```bash
 cd src/frontend
@@ -180,66 +71,98 @@ npm install
 npm run dev
 ```
 
-The frontend normally runs at `http://localhost:5173`.
+Runs the app at `http://localhost:5173` or the port Vite reports. Set `VITE_API_URL` to the backend URL, such as `http://localhost:8000`.
 
-To use a different backend URL, create `src/frontend/.env`:
+---
+
+## Environment Variables
+
+Create a `.env` file in the project root next to `main.py`. The included `.env.example` provides a safe template.
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `SECRET_KEY` | Yes | Secret for JWT signing; use a long random string |
+| `ALGORITHM` | No | JWT algorithm; default: `HS256` |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | No | JWT expiration in minutes; default: `30` |
+| `PROJECT_NAME` | No | App title; default: Fitness Advice and Tracking Service |
+| `REDIS_HOST` | No | Redis host; default: `localhost` |
+| `REDIS_PORT` | No | Redis port; default: `6379` |
+| `REDIS_PASSWORD` | No | Redis password; default: none |
+| `REDIS_DB_AUTH` | No | Redis DB for authentication; default: `0` |
+| `REDIS_DB_LLM` | No | Reserved Redis DB for LLM cache and rate-limit data; default: `1` |
+| `REDIS_DB_QUEUE` | No | Redis DB for the report queue; default: `2` |
+| `ENABLE_LLM_MODEL` | No | Set to `true` to use Ollama or `false` for mock reports; default: `true` |
+| `LOCAL_MODEL_NAME` | No | Ollama model name, such as `llama3` or `mistral-nemo`; default: `llama3` |
+| `OLLAMA_HOST` | No | Ollama server URL; default: `http://localhost:11434` |
+| `PREMIUM_COUPON` | Yes | Private coupon code used by the subscription redeem flow |
+| `ADMIN_PASSWORD` | Yes | Strong password for the admin panel |
+
+### Frontend environment variables
+
+Create `src/frontend/.env`:
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `VITE_API_URL` | Yes | Backend API base URL, such as `http://localhost:8000` |
+
+Minimal `.env` example:
 
 ```env
-VITE_API_URL=http://localhost:8000
+SECRET_KEY=replace-with-a-long-random-secret
+ALGORITHM=HS256
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_DB_AUTH=0
+REDIS_DB_QUEUE=2
+ADMIN_PASSWORD=replace-with-a-strong-admin-password
+PREMIUM_COUPON=replace-with-a-private-coupon-code
+ENABLE_LLM_MODEL=false
+LOCAL_MODEL_NAME=mistral-nemo
 ```
 
-### Optional local AI
+---
+
+## Run
+
+Start the backend:
 
 ```bash
-ollama pull llama3
-ollama serve
+python main.py
 ```
 
-Set `ENABLE_LLM_MODEL=true` in `.env` and restart the backend. Supported features use mock or rule-based behavior when local AI is disabled.
+The server runs at `http://localhost:8000`.
 
-## Project structure
+Start the frontend in a separate terminal:
 
-```text
-.
-|-- docs/                  Project documentation
-|-- scripts/               Repository maintenance scripts
-|-- src/
-|   |-- api/               FastAPI routers
-|   |-- core/              Authentication, configuration, calculations, AI, and exercise logic
-|   |-- crud/              Database operations
-|   |-- data/              Normalized exercise catalog
-|   |-- frontend/          React and Vite application
-|   |-- model.py           SQLModel database entities
-|   |-- schemas.py         API request and response contracts
-|   `-- tasks.py           Redis-backed worker
-|-- .env.example           Safe configuration template
-|-- main.py                Backend entry point
-`-- requirements.txt       Python dependencies
+```bash
+cd src/frontend
+npm run dev
 ```
 
-## Documentation
+---
 
-- [System architecture](docs/architecture.md)
-- [Requirements specification](docs/requirements-specification.md)
-- [Project management plan](docs/project-management-plan.md)
-- [Test plan](docs/test-plan.md)
-- [Backend feature-development guide](docs/How_to_build_feature.md)
-- [AI feature-development guide](docs/How_to_build_AI_feature.md)
-- [Muscle-map guide](docs/muscle-heat-map.md)
-- [Engineering onboarding guide](https://gray-clarie-96.tiiny.site/)
+## Documentation and Links
 
-## Current limitations
+- **API (Swagger UI):** http://localhost:8000/docs
+- **Admin panel:** http://localhost:8000/admin
+- **Health check:** http://localhost:8000/health
+- **Project Management Plan:** [docs/project-management-plan.md](docs/project-management-plan.md)
+- **Requirements:** [docs/requirements-specification.md](docs/requirements-specification.md)
+- **Architecture and diagrams:** [docs/architecture.md](docs/architecture.md)
+- **ER diagram:** [docs/ERdiagram_sprint1.png](docs/ERdiagram_sprint1.png)
+- **Test Plan:** [docs/test-plan.md](docs/test-plan.md)
+- **API docs:** Served by FastAPI at `http://localhost:8000/docs` and `/openapi.json`
 
-- SQLite is not intended for heavy concurrent production workloads.
-- Schema changes require manual SQL because Alembic migrations are not configured.
-- Automated test coverage is not yet comprehensive.
-- Password-reset email delivery is not implemented.
-- The previous custom-domain deployment is currently unavailable.
+---
 
-## Attribution and license
+## Repository Scripts
 
-Exercise data is derived from [free-exercise-db](https://github.com/yuhonas/free-exercise-db).
+- `python scripts/strip_svg_inkscape.py`
+  Strips editor metadata from SVG source files in `src/muscle-map-sources/` and updates web-ready files in `src/frontend/src/assets/muscle-maps/`.
 
-The application was developed collaboratively as a Texas State Software Engineering course project. The original Git history is preserved to retain each contributor's authorship.
+---
 
-No open-source license has been selected. All rights remain with the project contributors unless the team adds an explicit license.
+## Version Control and Project Management
+
+- **Version control:** Git; migrated from Bitbucket to GitHub
+- **Project management:** Jira
