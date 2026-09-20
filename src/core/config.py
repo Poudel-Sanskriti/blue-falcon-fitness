@@ -13,7 +13,8 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
-    ADMIN_PASSWORD: str = "admin123"  # default admin password, should be overridden in production
+    # Required: never fall back to a known administrator password.
+    ADMIN_PASSWORD: str
     # LLM (Large Language Model) configuration settings, 
     # including a flag to enable or disable the use of LLMs in the application, and a configuration option for specifying the name of the local model to use if LLMs are enabled. This allows for flexibility in choosing between using a local model or an external API for generating fitness reports based on user data.
     ENABLE_LLM_MODEL: bool = True
@@ -22,7 +23,8 @@ class Settings(BaseSettings):
     LOCAL_MODEL_NAME: str = "llama3" 
     OLLAMA_HOST: str = "http://localhost:11434"
 
-    PREMIUM_COUPON: str = "DEMO2026"  # default fallback coupon code for premium access, should be overridden in production
+    # Required because this value grants premium access.
+    PREMIUM_COUPON: str
 
     # Redis configuration settings, including the host, port, and password for connecting to the Redis server, 
     # as well as the database indices for different purposes (authentication, LLM rate limiting, and task queue management). This allows for organized and efficient use of Redis for various functionalities in the application.
